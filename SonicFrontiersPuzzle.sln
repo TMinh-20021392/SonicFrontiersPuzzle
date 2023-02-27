@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33110.190
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SonicFrontiersPuzzle", "SonicFrontiersPuzzle\SonicFrontiersPuzzle.csproj", "{8017CA2D-F611-4EAA-A3AC-0C551B237F1B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8017CA2D-F611-4EAA-A3AC-0C551B237F1B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8017CA2D-F611-4EAA-A3AC-0C551B237F1B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8017CA2D-F611-4EAA-A3AC-0C551B237F1B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8017CA2D-F611-4EAA-A3AC-0C551B237F1B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {55B16A2B-8E8D-41C5-AB2E-67F1D4CA44C9}
+	EndGlobalSection
+EndGlobal
