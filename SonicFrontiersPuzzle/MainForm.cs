@@ -128,15 +128,7 @@ namespace SonicFrontiersPuzzle
                     initialGraphPanel.SetupGraph(nodeCount, modulo);
                     targetGraphPanel.SetupGraph(nodeCount, modulo);
 
-                    // IMPORTANT: Make sure to connect this event AFTER both panels are set up
-                    // This might be the issue - we need to make sure the target panel is ready before we start sending events
-                    if (initialGraphPanel.Events.GetInvocationList().Length > 0)
-                    {
-                        DebugLogger.Log("Removing existing NodeValuesChanged handlers to avoid duplicates");
-                        initialGraphPanel.NodeValuesChanged -= UpdateTargetGraph;
-                    }
-
-                    initialGraphPanel.NodeValuesChanged += UpdateTargetGraph;
+                    initialGraphPanel.NodeValuesChanged -= UpdateTargetGraph;
                     DebugLogger.Log("Connected NodeValuesChanged event to UpdateTargetGraph");
 
                     solutionPanel.EnableSolutionGeneration(true);
@@ -164,6 +156,8 @@ namespace SonicFrontiersPuzzle
         {
             DebugLogger.Log($"UpdateTargetGraph called: Node {e.NodeIndex} value changed to {e.Value}");
             targetGraphPanel.UpdateNodeValue(e.NodeIndex, e.Value);
+            targetGraphPanel.Invalidate();
+            targetGraphPanel.Refresh();
         }
 
         private void GenerateSolution()

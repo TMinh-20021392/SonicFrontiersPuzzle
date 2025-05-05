@@ -1,5 +1,6 @@
 using SonicFrontiersPuzzle.Events;
 using SonicFrontiersPuzzle.Extensions;
+using System.ComponentModel;
 
 namespace SonicFrontiersPuzzle
 {
@@ -45,14 +46,28 @@ namespace SonicFrontiersPuzzle
             // Validate input (only allow digits 0 to modulo-1)
             KeyPress += NodeTextBox_KeyPress;
 
-            // Ensure value is between 0 and modulo-1
-            TextChanged += NodeTextBox_TextChanged;
+            this.Validating += NodeTextBox_Validating;
 
             // Focus handling for better user interaction
             GotFocus += (s, e) => {
                 DebugLogger.Log($"Node {NodeIndex} got focus");
                 SelectAll();
             };
+        }
+
+        private void NodeTextBox_Validating(object sender, CancelEventArgs e)
+        {
+            if (!int.TryParse(Text, out int value) || value < 0 || value >= modulo)
+            {
+                // invalid or out of bounds
+                MessageBox.Show($"Please enter a number between 0 and {modulo - 1}.");
+                e.Cancel = true;            // keep focus here
+            }
+            else
+            {
+                // only fire once, when losing focus
+                ValueChanged?.Invoke(this, new NodeValueChangedEventArgs(NodeIndex, value));
+            }
         }
 
         private void NodeTextBox_KeyPress(object sender, KeyPressEventArgs e)
@@ -64,29 +79,6 @@ namespace SonicFrontiersPuzzle
             {
                 DebugLogger.Log($"Node {NodeIndex} invalid input rejected: '{e.KeyChar}'");
                 e.Handled = true;
-            }
-        }
-
-        private void NodeTextBox_TextChanged(object sender, EventArgs e)
-        {
-            DebugLogger.Log($"Node {NodeIndex} TextChanged: Text = '{Text}'");
-
-            if (!string.IsNullOrEmpty(Text) && int.TryParse(Text, out int value))
-            {
-                if (value >= modulo)
-                {
-                    DebugLogger.Log($"Node {NodeIndex} value {value} >= modulo {modulo}, resetting to 0");
-                    Text = "0";
-                    value = 0;
-                }
-                DebugLogger.Log($"Node {NodeIndex} firing ValueChanged event with value {value}");
-                ValueChanged?.Invoke(this, new NodeValueChangedEventArgs(NodeIndex, value));
-            }
-            else if (string.IsNullOrEmpty(Text))
-            {
-                DebugLogger.Log($"Node {NodeIndex} text is empty, resetting to 0");
-                Text = "0";
-                ValueChanged?.Invoke(this, new NodeValueChangedEventArgs(NodeIndex, 0));
             }
         }
 
