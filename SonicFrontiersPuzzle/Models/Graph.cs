@@ -30,10 +30,7 @@ namespace DirectedGraphPuzzleSolver
             // Increment the value of a specific node and all nodes it points to
             public void Increment(int[] values, int nodeIndex)
             {
-                // Increment the selected node
-                values[nodeIndex] = (values[nodeIndex] + 1) % Modulo;
-
-                // Increment all nodes that this node points to
+                // Increment all nodes that this node points to (including self if there's a self-loop)
                 foreach (var target in Adjacency[nodeIndex])
                 {
                     values[target] = (values[target] + 1) % Modulo;

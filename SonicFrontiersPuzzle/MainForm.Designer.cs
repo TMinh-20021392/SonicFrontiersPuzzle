@@ -1,9 +1,6 @@
-﻿using static System.Net.Mime.MediaTypeNames;
-using System.Xml.Linq;
-
-namespace SonicFrontiersPuzzle
+﻿namespace SonicFrontiersPuzzle
 {
-    partial class DirectedGraphPuzzleWinForms
+    partial class MainForm
     {
         /// <summary>
         /// Required designer variable.
