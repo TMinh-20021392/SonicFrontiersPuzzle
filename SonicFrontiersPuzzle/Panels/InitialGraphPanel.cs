@@ -1,13 +1,10 @@
-﻿using SonicFrontiersPuzzle.Events;
-using System;
-using System.Collections.Generic;
-using System.Drawing;
+﻿using SonicFrontiersPuzzle;
+using SonicFrontiersPuzzle.Events;
+using SonicFrontiersPuzzle.Extensions;
 using System.Drawing.Drawing2D;
-using System.Linq;
-using System.Windows.Forms;
 using static DirectedGraphPuzzleSolver.DirectedGraphPuzzleForm;
 
-namespace DirectedGraphPuzzleSolver
+namespace SonicFrontiersPuzzle.Panels
 {
     public class InitialGraphPanel : Panel
     {
@@ -42,6 +39,8 @@ namespace DirectedGraphPuzzleSolver
             InitializeUI();
             SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.UserPaint, true);
             Paint += InitialGraphPanel_Paint;
+
+            DebugLogger.Log("InitialGraphPanel initialized");
         }
 
         private void InitializeUI()
@@ -79,10 +78,13 @@ namespace DirectedGraphPuzzleSolver
             };
             clearEdgesButton.Click += ClearEdgesButton_Click;
             Controls.Add(clearEdgesButton);
+
+            DebugLogger.Log("InitialGraphPanel UI initialized");
         }
 
         public void SetupGraph(int nodeCount, int modulo)
         {
+            DebugLogger.Log($"Setting up graph with {nodeCount} nodes and modulo {modulo}");
             this.nodeCount = nodeCount;
             this.modulo = modulo;
 
@@ -91,7 +93,7 @@ namespace DirectedGraphPuzzleSolver
 
             // Calculate layout for nodes
             int columns = (int)Math.Ceiling(Math.Sqrt(nodeCount));
-            int xOffset = (Width - (columns * (NodeSize + NodeMargin))) / 2 + NodeSize / 2;
+            int xOffset = (Width - columns * (NodeSize + NodeMargin)) / 2 + NodeSize / 2;
             int yOffset = 50;
 
             // Create nodes for initial graph
@@ -108,18 +110,27 @@ namespace DirectedGraphPuzzleSolver
                 nodes.Add(nodeTextBox);
 
                 // Forward node value changes to listeners
-                nodeTextBox.ValueChanged += (sender, e) => NodeValuesChanged?.Invoke(this, e);
+                nodeTextBox.ValueChanged += Node_ValueChanged;
 
                 // Add event handlers for node selection (adding edges)
                 nodeTextBox.Click += Node_Click;
+
+                DebugLogger.Log($"Created node {i} at position ({x}, {y})");
             }
 
             // Set initial mode
             SetMode(EditMode.EditValues);
         }
 
+        private void Node_ValueChanged(object sender, NodeValueChangedEventArgs e)
+        {
+            DebugLogger.Log($"Node {e.NodeIndex} value changed to {e.Value}, forwarding event");
+            NodeValuesChanged?.Invoke(this, e);
+        }
+
         private void ClearGraph()
         {
+            DebugLogger.Log("Clearing graph");
             foreach (var node in nodes)
             {
                 Controls.Remove(node);
@@ -132,6 +143,7 @@ namespace DirectedGraphPuzzleSolver
 
         public void ResetPanel()
         {
+            DebugLogger.Log("Resetting panel");
             // Clear all nodes and edges
             foreach (var node in nodes)
             {
@@ -146,6 +158,7 @@ namespace DirectedGraphPuzzleSolver
 
         private void ClearEdgesButton_Click(object sender, EventArgs e)
         {
+            DebugLogger.Log("Clear edges button clicked");
             Edges.Clear();
             EdgesChanged?.Invoke(this, EventArgs.Empty);
             Invalidate();
@@ -153,6 +166,7 @@ namespace DirectedGraphPuzzleSolver
 
         private void SetMode(EditMode mode)
         {
+            DebugLogger.Log($"Setting mode to {mode}");
             currentMode = mode;
             sourceNode = null;
 
@@ -164,19 +178,6 @@ namespace DirectedGraphPuzzleSolver
             foreach (var node in nodes)
             {
                 node.SetEnabled(mode == EditMode.EditValues);
-
-                // Important: When in EditValues mode, disconnect the Click handler to prevent confusion
-                // with the edge creation logic
-                if (mode == EditMode.EditValues)
-                {
-                    node.Click -= Node_Click;
-                }
-                else
-                {
-                    // Re-add the handler if we're in AddEdges mode
-                    node.Click -= Node_Click; // Remove first to avoid duplicate handlers
-                    node.Click += Node_Click;
-                }
             }
 
             Invalidate();
@@ -184,40 +185,58 @@ namespace DirectedGraphPuzzleSolver
 
         private void Node_Click(object sender, EventArgs e)
         {
-            if (currentMode != EditMode.AddEdges) return;
-
             NodeTextBox clickedNode = sender as NodeTextBox;
             if (clickedNode == null) return;
 
-            if (sourceNode == null)
+            DebugLogger.Log($"Node {clickedNode.NodeIndex} clicked, current mode: {currentMode}");
+
+            if (currentMode == EditMode.AddEdges)
             {
-                // First node selection for edge creation
-                sourceNode = clickedNode;
-                sourceNode.BackColor = Color.Yellow;
+                if (sourceNode == null)
+                {
+                    // First node selection for edge creation
+                    sourceNode = clickedNode;
+                    sourceNode.BackColor = Color.Yellow;
+                    DebugLogger.Log($"Selected source node {sourceNode.NodeIndex} for edge creation");
+                }
+                else
+                {
+                    // Second node selection - create edge
+                    if (sourceNode != clickedNode)
+                    {
+                        // Check if the edge already exists
+                        Edge newEdge = new(sourceNode.NodeIndex, clickedNode.NodeIndex);
+                        if (!Edges.Any(edge => edge.From == newEdge.From && edge.To == newEdge.To))
+                        {
+                            Edges.Add(newEdge);
+                            DebugLogger.Log($"Added edge from node {sourceNode.NodeIndex} to node {clickedNode.NodeIndex}");
+                            EdgesChanged?.Invoke(this, EventArgs.Empty);
+                        }
+                        else
+                        {
+                            DebugLogger.Log($"Edge from node {sourceNode.NodeIndex} to node {clickedNode.NodeIndex} already exists");
+                        }
+                    }
+                    else
+                    {
+                        DebugLogger.Log($"Self edge not created through click (source and target are the same node {clickedNode.NodeIndex})");
+                    }
+
+                    // Reset source node
+                    sourceNode.BackColor = Color.LightCyan;
+                    sourceNode = null;
+                    Invalidate();
+                }
             }
             else
             {
-                // Second node selection - create edge
-                if (sourceNode != clickedNode)
-                {
-                    // Check if the edge already exists
-                    Edge newEdge = new(sourceNode.NodeIndex, clickedNode.NodeIndex);
-                    if (!Edges.Any(edge => edge.From == newEdge.From && edge.To == newEdge.To))
-                    {
-                        Edges.Add(newEdge);
-                        EdgesChanged?.Invoke(this, EventArgs.Empty);
-                    }
-                }
-
-                // Reset source node
-                sourceNode.BackColor = Color.LightCyan;
-                sourceNode = null;
-                Invalidate();
+                DebugLogger.Log($"Node clicked in EditValues mode, node should handle its own interaction");
             }
         }
 
         public void AddSelfLoopsIfNeeded()
         {
+            DebugLogger.Log("Adding self-loops if needed");
             bool edgesAdded = false;
             for (int i = 0; i < nodeCount; i++)
             {
@@ -225,12 +244,14 @@ namespace DirectedGraphPuzzleSolver
                 if (!Edges.Any(edge => edge.From == i && edge.To == i))
                 {
                     Edges.Add(selfLoop);
+                    DebugLogger.Log($"Added self-loop for node {i}");
                     edgesAdded = true;
                 }
             }
 
             if (edgesAdded)
             {
+                DebugLogger.Log("Self-loops added, firing EdgesChanged event");
                 EdgesChanged?.Invoke(this, EventArgs.Empty);
                 Invalidate();
             }
@@ -238,7 +259,9 @@ namespace DirectedGraphPuzzleSolver
 
         public int[] GetNodeValues()
         {
-            return nodes.Select(n => n.GetValue()).ToArray();
+            int[] values = nodes.Select(n => n.GetValue()).ToArray();
+            DebugLogger.Log($"GetNodeValues returned: [{string.Join(", ", values)}]");
+            return values;
         }
 
         private void InitialGraphPanel_Paint(object sender, PaintEventArgs e)

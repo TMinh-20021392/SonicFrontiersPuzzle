@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Windows.Forms;
-using static DirectedGraphPuzzleSolver.DirectedGraphPuzzleForm;
+﻿using static DirectedGraphPuzzleSolver.DirectedGraphPuzzleForm;
 
-namespace DirectedGraphPuzzleSolver
+namespace SonicFrontiersPuzzle.Panels
 {
     public class SolutionPanel : Panel
     {

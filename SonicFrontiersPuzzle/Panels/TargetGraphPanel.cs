@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Linq;
-using System.Windows.Forms;
-using System.Windows.Forms.VisualStyles;
+﻿using System.Drawing.Drawing2D;
 using static DirectedGraphPuzzleSolver.DirectedGraphPuzzleForm;
 
-namespace DirectedGraphPuzzleSolver
+namespace SonicFrontiersPuzzle.Panels
 {
     public class TargetGraphPanel : Panel
     {
@@ -55,7 +49,7 @@ namespace DirectedGraphPuzzleSolver
 
             // Calculate layout for nodes
             int columns = (int)Math.Ceiling(Math.Sqrt(nodeCount));
-            int xOffset = (Width - (columns * (NodeSize + NodeMargin))) / 2 + NodeSize / 2;
+            int xOffset = (Width - columns * (NodeSize + NodeMargin)) / 2 + NodeSize / 2;
             int yOffset = 50;
 
             // Create nodes for target graph
