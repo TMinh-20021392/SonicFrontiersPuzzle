@@ -91,7 +91,7 @@ namespace SonicFrontiersPuzzle.Panels
             Invalidate();
         }
 
-        private void ClearValuesButton_Click(object sender, EventArgs e)
+        private void ClearValuesButton_Click(object? sender, EventArgs e)
         {
             foreach (var node in nodes)
             {
@@ -118,12 +118,12 @@ namespace SonicFrontiersPuzzle.Panels
             return nodes.Select(n => n.GetValue()).ToArray();
         }
 
-        private void TargetGraphPanel_Paint(object sender, PaintEventArgs e)
+        private void TargetGraphPanel_Paint(object? sender, PaintEventArgs e)
         {
             Graphics g = e.Graphics;
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
-            // Draw all edges
+            // Draw all edges  
             foreach (var edge in edges)
             {
                 if (edge.From < nodes.Count && edge.To < nodes.Count)
@@ -160,7 +160,7 @@ namespace SonicFrontiersPuzzle.Panels
             DrawArrowHead(g, adjustedStart, adjustedEnd, 15, 8, color);
         }
 
-        private void DrawArrowHead(Graphics g, Point start, Point end, float size, float width, Color color)
+        private static void DrawArrowHead(Graphics g, Point start, Point end, float size, float width, Color color)
         {
             float dx = end.X - start.X;
             float dy = end.Y - start.Y;
@@ -182,10 +182,8 @@ namespace SonicFrontiersPuzzle.Panels
                 end.Y - size * dy + width * dx
             );
 
-            using (SolidBrush brush = new(color))
-            {
-                g.FillPolygon(brush, arrowHead);
-            }
+            using SolidBrush brush = new(color);
+            g.FillPolygon(brush, arrowHead);
         }
     }
 }

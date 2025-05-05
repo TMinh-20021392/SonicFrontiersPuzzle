@@ -13,7 +13,8 @@ namespace SonicFrontiersPuzzle
         private Label indexLabel;
         private bool isEnabled = true;
 
-        public event EventHandler<NodeValueChangedEventArgs> ValueChanged;
+        // Declare the event as nullable to resolve CS8618  
+        public event EventHandler<NodeValueChangedEventArgs>? ValueChanged;
 
         public NodeTextBox(int index, Point center, int size, int modValue)
         {
@@ -30,11 +31,10 @@ namespace SonicFrontiersPuzzle
             Multiline = true;
             BorderStyle = BorderStyle.FixedSingle;
             BackColor = Color.LightCyan;
-            TabStop = true;  // Ensure the textbox can receive focus
+            TabStop = true;
 
             DebugLogger.Log($"Created NodeTextBox {index} with modulo {modValue}");
 
-            // Add a label for the node index
             indexLabel = new Label
             {
                 Text = index.ToString(),
@@ -43,34 +43,30 @@ namespace SonicFrontiersPuzzle
                 Font = new Font("Arial", 9, FontStyle.Bold)
             };
 
-            // Validate input (only allow digits 0 to modulo-1)
             KeyPress += NodeTextBox_KeyPress;
+            Validating += NodeTextBox_Validating;
 
-            this.Validating += NodeTextBox_Validating;
-
-            // Focus handling for better user interaction
-            GotFocus += (s, e) => {
+            GotFocus += (s, e) =>
+            {
                 DebugLogger.Log($"Node {NodeIndex} got focus");
                 SelectAll();
             };
         }
 
-        private void NodeTextBox_Validating(object sender, CancelEventArgs e)
+        private void NodeTextBox_Validating(object? sender, CancelEventArgs e)
         {
             if (!int.TryParse(Text, out int value) || value < 0 || value >= modulo)
             {
-                // invalid or out of bounds
                 MessageBox.Show($"Please enter a number between 0 and {modulo - 1}.");
-                e.Cancel = true;            // keep focus here
+                e.Cancel = true;
             }
             else
             {
-                // only fire once, when losing focus
                 ValueChanged?.Invoke(this, new NodeValueChangedEventArgs(NodeIndex, value));
             }
         }
 
-        private void NodeTextBox_KeyPress(object sender, KeyPressEventArgs e)
+        private void NodeTextBox_KeyPress(object? sender, KeyPressEventArgs e)
         {
             DebugLogger.Log($"Node {NodeIndex} KeyPress: '{e.KeyChar}' (ASCII: {(int)e.KeyChar})");
 
@@ -117,7 +113,7 @@ namespace SonicFrontiersPuzzle
             if (enabled)
             {
                 BackColor = Color.LightCyan;
-                Cursor = Cursors.IBeam;  // Set appropriate cursor for editing
+                Cursor = Cursors.IBeam;
             }
             else
             {
@@ -132,20 +128,18 @@ namespace SonicFrontiersPuzzle
             DebugLogger.Log($"Node {NodeIndex} clicked, isEnabled = {isEnabled}");
             if (isEnabled)
             {
-                Focus();  // Ensure the textbox gets focus when clicked
-                SelectAll(); // Select all text for easy replacement
+                Focus();
+                SelectAll();
                 DebugLogger.Log($"Node {NodeIndex} focused and text selected");
             }
         }
 
-        // Override OnKeyDown to log key presses
         protected override void OnKeyDown(KeyEventArgs e)
         {
             base.OnKeyDown(e);
             DebugLogger.Log($"Node {NodeIndex} KeyDown: {e.KeyCode}, ReadOnly = {ReadOnly}, isEnabled = {isEnabled}");
         }
 
-        // Override OnTextChanged to provide more debugging
         protected override void OnTextChanged(EventArgs e)
         {
             base.OnTextChanged(e);

@@ -2,11 +2,11 @@
 {
     public class ConfigurationPanel : Panel
     {
-        private TextBox nodeCountTextBox;
-        private TextBox moduloTextBox;
-        private Button setupButton;
+        private TextBox nodeCountTextBox = null!;
+        private TextBox moduloTextBox = null!;
+        private Button setupButton = null!;
 
-        public event EventHandler SetupButtonClicked;
+        public event EventHandler? SetupButtonClicked;
 
         public ConfigurationPanel()
         {
@@ -63,7 +63,6 @@
 
         public bool TryGetConfiguration(out int nodeCount, out int modulo)
         {
-            nodeCount = 0;
             modulo = 0;
 
             if (!int.TryParse(nodeCountTextBox.Text, out nodeCount) || nodeCount <= 0)

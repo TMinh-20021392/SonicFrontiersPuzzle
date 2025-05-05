@@ -23,7 +23,7 @@ namespace SonicFrontiersPuzzle.Panels
         private EditMode currentMode = EditMode.EditValues;
 
         // Edge creation state
-        private NodeTextBox sourceNode = null;
+        private NodeTextBox? sourceNode = null;
 
         // UI elements
         private Button editValuesButton;
@@ -122,7 +122,7 @@ namespace SonicFrontiersPuzzle.Panels
             SetMode(EditMode.EditValues);
         }
 
-        private void Node_ValueChanged(object sender, NodeValueChangedEventArgs e)
+        private void Node_ValueChanged(object? sender, NodeValueChangedEventArgs e)
         {
             DebugLogger.Log($"Node {e.NodeIndex} value changed to {e.Value}, forwarding event");
             NodeValuesChanged?.Invoke(this, e);
@@ -156,7 +156,7 @@ namespace SonicFrontiersPuzzle.Panels
             Invalidate();
         }
 
-        private void ClearEdgesButton_Click(object sender, EventArgs e)
+        private void ClearEdgesButton_Click(object? sender, EventArgs e)
         {
             DebugLogger.Log("Clear edges button clicked");
             Edges.Clear();
@@ -183,10 +183,9 @@ namespace SonicFrontiersPuzzle.Panels
             Invalidate();
         }
 
-        private void Node_Click(object sender, EventArgs e)
+        private void Node_Click(object? sender, EventArgs e)
         {
-            NodeTextBox clickedNode = sender as NodeTextBox;
-            if (clickedNode == null) return;
+            if (sender is not NodeTextBox clickedNode) return;
 
             DebugLogger.Log($"Node {clickedNode.NodeIndex} clicked, current mode: {currentMode}");
 
@@ -264,7 +263,7 @@ namespace SonicFrontiersPuzzle.Panels
             return values;
         }
 
-        private void InitialGraphPanel_Paint(object sender, PaintEventArgs e)
+        private void InitialGraphPanel_Paint(object? sender, PaintEventArgs e)
         {
             Graphics g = e.Graphics;
             g.SmoothingMode = SmoothingMode.AntiAlias;
@@ -282,16 +281,14 @@ namespace SonicFrontiersPuzzle.Panels
             if (currentMode == EditMode.AddEdges && sourceNode != null)
             {
                 // Highlight the source node
-                using (SolidBrush brush = new(Color.FromArgb(100, Color.Yellow)))
-                {
-                    Rectangle rect = new(
-                        sourceNode.NodeCenter.X - NodeSize / 2,
-                        sourceNode.NodeCenter.Y - NodeSize / 2,
-                        NodeSize,
-                        NodeSize
-                    );
-                    g.FillEllipse(brush, rect);
-                }
+                using SolidBrush brush = new(Color.FromArgb(100, Color.Yellow));
+                Rectangle rect = new(
+                    sourceNode.NodeCenter.X - NodeSize / 2,
+                    sourceNode.NodeCenter.Y - NodeSize / 2,
+                    NodeSize,
+                    NodeSize
+                );
+                g.FillEllipse(brush, rect);
             }
         }
 
@@ -322,7 +319,7 @@ namespace SonicFrontiersPuzzle.Panels
             DrawArrowHead(g, adjustedStart, adjustedEnd, 15, 8, color);
         }
 
-        private void DrawArrowHead(Graphics g, Point start, Point end, float size, float width, Color color)
+        private static void DrawArrowHead(Graphics g, Point start, Point end, float size, float width, Color color)
         {
             float dx = end.X - start.X;
             float dy = end.Y - start.Y;
@@ -344,10 +341,8 @@ namespace SonicFrontiersPuzzle.Panels
                 end.Y - size * dy + width * dx
             );
 
-            using (SolidBrush brush = new(color))
-            {
-                g.FillPolygon(brush, arrowHead);
-            }
+            using SolidBrush brush = new(color);
+            g.FillPolygon(brush, arrowHead);
         }
     }
 }

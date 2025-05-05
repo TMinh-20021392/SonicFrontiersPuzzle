@@ -27,6 +27,13 @@ namespace SonicFrontiersPuzzle
         {
             DebugLogger.Log("MainForm constructor called");
             InitializeComponent();
+
+            // Initialize non-nullable fields to default instances
+            configPanel = new ConfigurationPanel();
+            initialGraphPanel = new InitialGraphPanel();
+            targetGraphPanel = new TargetGraphPanel();
+            solutionPanel = new SolutionPanel();
+
             InitializeUI();
             DebugLogger.Log("MainForm initialized");
         }
@@ -51,6 +58,8 @@ namespace SonicFrontiersPuzzle
             modulo = DefaultModulo;
             DebugLogger.Log($"Initial nodeCount={nodeCount}, modulo={modulo}");
 
+            // Create all panels first but don't add them to Controls yet
+
             // Configuration panel
             configPanel = new ConfigurationPanel
             {
@@ -58,44 +67,6 @@ namespace SonicFrontiersPuzzle
                 Height = 80,
                 BorderStyle = BorderStyle.FixedSingle
             };
-            Controls.Add(configPanel);
-            DebugLogger.Log("Configuration panel added");
-
-            // Initial graph panel
-            GroupBox initialGraphGroupBox = new()
-            {
-                Text = "Initial Graph",
-                Dock = DockStyle.Top,
-                Height = 350,
-                Padding = new Padding(10)
-            };
-            Controls.Add(initialGraphGroupBox);
-
-            initialGraphPanel = new InitialGraphPanel
-            {
-                Dock = DockStyle.Fill,
-                BorderStyle = BorderStyle.FixedSingle
-            };
-            initialGraphGroupBox.Controls.Add(initialGraphPanel);
-            DebugLogger.Log("Initial graph panel added");
-
-            // Target graph panel
-            GroupBox targetGraphGroupBox = new()
-            {
-                Text = "Target Graph (Set target values)",
-                Dock = DockStyle.Top,
-                Height = 350,
-                Padding = new Padding(10)
-            };
-            Controls.Add(targetGraphGroupBox);
-
-            targetGraphPanel = new TargetGraphPanel
-            {
-                Dock = DockStyle.Fill,
-                BorderStyle = BorderStyle.FixedSingle
-            };
-            targetGraphGroupBox.Controls.Add(targetGraphPanel);
-            DebugLogger.Log("Target graph panel added");
 
             // Solution panel
             GroupBox solutionGroupBox = new()
@@ -105,14 +76,57 @@ namespace SonicFrontiersPuzzle
                 Height = 300,
                 Padding = new Padding(10)
             };
-            Controls.Add(solutionGroupBox);
 
             solutionPanel = new SolutionPanel
             {
                 Dock = DockStyle.Fill
             };
             solutionGroupBox.Controls.Add(solutionPanel);
+
+            // Target graph panel
+            GroupBox targetGraphGroupBox = new()
+            {
+                Text = "Target Graph (Set target values)",
+                Dock = DockStyle.Top,
+                Height = 350,
+                Padding = new Padding(10)
+            };
+
+            targetGraphPanel = new TargetGraphPanel
+            {
+                Dock = DockStyle.Fill,
+                BorderStyle = BorderStyle.FixedSingle
+            };
+            targetGraphGroupBox.Controls.Add(targetGraphPanel);
+
+            // Initial graph panel
+            GroupBox initialGraphGroupBox = new()
+            {
+                Text = "Initial Graph",
+                Dock = DockStyle.Top,
+                Height = 350,
+                Padding = new Padding(10)
+            };
+
+            initialGraphPanel = new InitialGraphPanel
+            {
+                Dock = DockStyle.Fill,
+                BorderStyle = BorderStyle.FixedSingle
+            };
+            initialGraphGroupBox.Controls.Add(initialGraphPanel);
+
+            // Now add them to Controls in reverse order because of DockStyle.Top
+            Controls.Add(solutionGroupBox);
             DebugLogger.Log("Solution panel added");
+
+            Controls.Add(targetGraphGroupBox);
+            DebugLogger.Log("Target graph panel added");
+
+            Controls.Add(initialGraphGroupBox);
+            DebugLogger.Log("Initial graph panel added");
+
+            Controls.Add(configPanel);
+            DebugLogger.Log("Configuration panel added");
 
             // Connect the panels and set up event handlers
             configPanel.SetupButtonClicked += (sender, e) =>
@@ -152,7 +166,7 @@ namespace SonicFrontiersPuzzle
             };
         }
 
-        private void UpdateTargetGraph(object sender, NodeValueChangedEventArgs e)
+        private void UpdateTargetGraph(object? sender, NodeValueChangedEventArgs e)
         {
             DebugLogger.Log($"UpdateTargetGraph called: Node {e.NodeIndex} value changed to {e.Value}");
             targetGraphPanel.UpdateNodeValue(e.NodeIndex, e.Value);
@@ -181,7 +195,7 @@ namespace SonicFrontiersPuzzle
                 Graph graph = new(nodeCount, modulo, initialGraphPanel.Edges);
                 DebugLogger.Log("Created graph for solving");
 
-                List<int> solution = SolvePuzzle(graph, initialValues, targetValues);
+                List<int>? solution = SolvePuzzle(graph, initialValues, targetValues);
 
                 if (solution != null)
                 {
@@ -202,7 +216,7 @@ namespace SonicFrontiersPuzzle
         }
 
         // Using breadth-first search to find the shortest solution
-        private List<int>? SolvePuzzle(Graph graph, int[] initialValues, int[] goalValues)
+        private static List<int>? SolvePuzzle(Graph graph, int[] initialValues, int[] goalValues)
         {
             DebugLogger.Log("Starting BFS to solve puzzle");
 
