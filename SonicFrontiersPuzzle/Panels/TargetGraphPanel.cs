@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Windows.Forms;
+using System.Windows.Forms.VisualStyles;
 using static DirectedGraphPuzzleSolver.DirectedGraphPuzzleForm;
 
 namespace DirectedGraphPuzzleSolver
@@ -81,6 +82,18 @@ namespace DirectedGraphPuzzleSolver
                 Controls.Remove(node);
             }
             nodes.Clear();
+            Invalidate();
+        }
+
+        public void ResetPanel()
+        {
+            // Clear all nodes
+            foreach (var node in nodes)
+            {
+                Controls.Remove(node);
+            }
+            nodes.Clear();
+            edges.Clear();
             Invalidate();
         }
 

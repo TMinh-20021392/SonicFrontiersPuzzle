@@ -112,5 +112,13 @@ namespace DirectedGraphPuzzleSolver
 
             statusLabel.Text = "Solution generated successfully!";
         }
+
+        public void ResetPanel()
+        {
+            solutionTextBox.Clear();
+            solutionTextBox.Visible = false;
+            statusLabel.Text = "Configure and set up your graph to start.";
+            EnableSolutionGeneration(false);
+        }
     }
 }

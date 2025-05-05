@@ -130,6 +130,20 @@ namespace DirectedGraphPuzzleSolver
             Invalidate();
         }
 
+        public void ResetPanel()
+        {
+            // Clear all nodes and edges
+            foreach (var node in nodes)
+            {
+                Controls.Remove(node);
+            }
+            nodes.Clear();
+            Edges.Clear();
+            sourceNode = null;
+            SetMode(EditMode.EditValues);
+            Invalidate();
+        }
+
         private void ClearEdgesButton_Click(object sender, EventArgs e)
         {
             Edges.Clear();
@@ -150,6 +164,19 @@ namespace DirectedGraphPuzzleSolver
             foreach (var node in nodes)
             {
                 node.SetEnabled(mode == EditMode.EditValues);
+
+                // Important: When in EditValues mode, disconnect the Click handler to prevent confusion
+                // with the edge creation logic
+                if (mode == EditMode.EditValues)
+                {
+                    node.Click -= Node_Click;
+                }
+                else
+                {
+                    // Re-add the handler if we're in AddEdges mode
+                    node.Click -= Node_Click; // Remove first to avoid duplicate handlers
+                    node.Click += Node_Click;
+                }
             }
 
             Invalidate();

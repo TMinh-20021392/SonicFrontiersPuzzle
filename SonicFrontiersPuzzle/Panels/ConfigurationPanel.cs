@@ -84,5 +84,11 @@ namespace DirectedGraphPuzzleSolver
 
             return true;
         }
+
+        public void ResetPanel()
+        {
+            nodeCountTextBox.Text = MainForm.DefaultNodeCount.ToString();
+            moduloTextBox.Text = MainForm.DefaultModulo.ToString();
+        }
     }
 }

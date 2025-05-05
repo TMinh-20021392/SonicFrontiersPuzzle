@@ -12,6 +12,7 @@ namespace DirectedGraphPuzzleSolver
         public Point NodeCenter { get; private set; }
         private int modulo;
         private Label indexLabel;
+        private bool isEnabled = true;
 
         public event EventHandler<NodeValueChangedEventArgs> ValueChanged;
 
@@ -30,6 +31,7 @@ namespace DirectedGraphPuzzleSolver
             Multiline = true;
             BorderStyle = BorderStyle.FixedSingle;
             BackColor = Color.LightCyan;
+            TabStop = true;  // Ensure the textbox can receive focus
 
             // Add a label for the node index
             indexLabel = new Label
@@ -41,33 +43,40 @@ namespace DirectedGraphPuzzleSolver
             };
 
             // Validate input (only allow digits 0 to modulo-1)
-            KeyPress += (sender, e) =>
-            {
-                if (!char.IsControl(e.KeyChar) &&
-                    (!char.IsDigit(e.KeyChar) || int.Parse(e.KeyChar.ToString()) >= modulo))
-                {
-                    e.Handled = true;
-                }
-            };
+            KeyPress += NodeTextBox_KeyPress;
 
             // Ensure value is between 0 and modulo-1
-            TextChanged += (sender, e) =>
+            TextChanged += NodeTextBox_TextChanged;
+
+            // Focus handling for better user interaction
+            GotFocus += (s, e) => { SelectAll(); };
+        }
+
+        private void NodeTextBox_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (!char.IsControl(e.KeyChar) &&
+                (!char.IsDigit(e.KeyChar) || (char.IsDigit(e.KeyChar) && int.Parse(e.KeyChar.ToString()) >= modulo)))
             {
-                if (!string.IsNullOrEmpty(Text) && int.TryParse(Text, out int value))
-                {
-                    if (value >= modulo)
-                    {
-                        Text = "0";
-                        value = 0;
-                    }
-                    ValueChanged?.Invoke(this, new NodeValueChangedEventArgs(NodeIndex, value));
-                }
-                else if (string.IsNullOrEmpty(Text))
+                e.Handled = true;
+            }
+        }
+
+        private void NodeTextBox_TextChanged(object sender, EventArgs e)
+        {
+            if (!string.IsNullOrEmpty(Text) && int.TryParse(Text, out int value))
+            {
+                if (value >= modulo)
                 {
                     Text = "0";
-                    ValueChanged?.Invoke(this, new NodeValueChangedEventArgs(NodeIndex, 0));
+                    value = 0;
                 }
-            };
+                ValueChanged?.Invoke(this, new NodeValueChangedEventArgs(NodeIndex, value));
+            }
+            else if (string.IsNullOrEmpty(Text))
+            {
+                Text = "0";
+                ValueChanged?.Invoke(this, new NodeValueChangedEventArgs(NodeIndex, 0));
+            }
         }
 
         public void AddLabelToPanel(Panel panel)
@@ -92,14 +101,27 @@ namespace DirectedGraphPuzzleSolver
 
         public void SetEnabled(bool enabled)
         {
+            isEnabled = enabled;
             ReadOnly = !enabled;
             if (enabled)
             {
                 BackColor = Color.LightCyan;
+                Cursor = Cursors.IBeam;  // Set appropriate cursor for editing
             }
             else
             {
                 BackColor = SystemColors.Control;
+                Cursor = Cursors.Default;
+            }
+        }
+
+        protected override void OnMouseClick(MouseEventArgs e)
+        {
+            base.OnMouseClick(e);
+            if (isEnabled)
+            {
+                Focus();  // Ensure the textbox gets focus when clicked
+                SelectAll(); // Select all text for easy replacement
             }
         }
     }

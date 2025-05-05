@@ -11,7 +11,7 @@ namespace DirectedGraphPuzzleSolver
         // Constants for visual layout
         public const int NodeSize = 60;
         public const int NodeMargin = 30;
-        public const int DefaultModulo = 3;
+        public const int DefaultModulo = 8;
         public const int DefaultNodeCount = 4;
 
         // Core data structures
@@ -214,6 +214,24 @@ namespace DirectedGraphPuzzleSolver
 
             // If no solution is found
             return null;
+        }
+
+        private void ResetApplication()
+        {
+            // Reset data structures
+            nodeCount = DefaultNodeCount;
+            modulo = DefaultModulo;
+
+            // Reset UI components
+            initialGraphPanel.ResetPanel();
+            targetGraphPanel.ResetPanel();
+            solutionPanel.ResetPanel();
+
+            // Reset configuration panel
+            configPanel.ResetPanel();
+
+            // Update the UI
+            Invalidate();
         }
 
         // Helper method to create a unique string key for a state
