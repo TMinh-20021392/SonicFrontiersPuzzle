@@ -262,17 +262,19 @@ namespace SonicFrontiersPuzzle
                 }
             }
 
-            //CONTINUE HERE
             if (iterations % 1000 == 0)
             {
-
+                DebugLogger.Log($"BFS iteration {iterations}, queue size: {queue.Count}");
             }
 
+            DebugLogger.Log("Max iterations reached or no solution found");
             return null;
         }
 
         private void ResetApplication()
         {
+            DebugLogger.Log("Resetting application to default state");
+
             // Reset data structures
             nodeCount = DefaultNodeCount;
             modulo = DefaultModulo;
@@ -287,6 +289,8 @@ namespace SonicFrontiersPuzzle
 
             // Update the UI
             Invalidate();
+
+            DebugLogger.Log("Application reset complete");
         }
 
         // Helper method to create a unique string key for a state
@@ -294,5 +298,6 @@ namespace SonicFrontiersPuzzle
         {
             return string.Join(",", state);
         }
+
     }
 }
